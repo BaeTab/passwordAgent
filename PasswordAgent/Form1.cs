@@ -67,6 +67,7 @@ namespace PasswordAgent
                 textBox1.Clear();
                 textBox2.Clear();
                 textBox3.Clear();
+
                 listBox1.Items.Clear();
                 loadUrlsToListBox();
             }
