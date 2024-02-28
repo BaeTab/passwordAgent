@@ -11,15 +11,18 @@ namespace PasswordAgent
         {
             InitializeComponent();
             initControl();
+            listBox1.Items.Clear();
             loadUrlsToListBox();
         }
 
         private void initControl()
         {
             button1.Click += Button1_Click;
+            button2.Click += Button2_Click;
             button3.Click += Button3_Click;
             button4.Click += Button4_Click;
             button6.Click += Button6_Click;
+
             listBox1.SelectedIndexChanged += ListBox1_SelectedIndexChanged;
         }
 
@@ -77,6 +80,48 @@ namespace PasswordAgent
             }
         }
 
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            string selectedUrl = listBox1.SelectedItem?.ToString();
+
+            try
+            {
+                if (!string.IsNullOrEmpty(selectedUrl))
+                {
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(filePath);
+                    XmlNodeList nodesToRemove = doc.SelectNodes($"//pwAgent[url='{selectedUrl}']");
+                    if (null == nodesToRemove) return;
+
+                    foreach (XmlNode node in nodesToRemove)
+                    {
+                        node.ParentNode.RemoveChild(node);
+                    }
+
+                    if (DialogResult.Yes == MessageBox.Show("정말 삭제 하시겠습니까?", "정보", MessageBoxButtons.YesNo, MessageBoxIcon.Information))
+                    {
+                        doc.Save(filePath);
+
+                        textBox4.Clear();
+                        textBox5.Clear();
+                        textBox6.Clear();
+
+                        listBox1.Items.Clear();
+                        loadUrlsToListBox();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("먼저 리스트에서 삭제할 아이템을 선택해 주세요", "알림",MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("오류" + ex.Message, "알림");
+            }
+            return;
+        }
+
         private void Button3_Click(object sender, EventArgs e) // 아이디 복사버튼
         {
             if (!string.IsNullOrEmpty(textBox5.Text))
@@ -102,7 +147,7 @@ namespace PasswordAgent
                 label7.Text = "먼저 리스트에서 확인할 아이템을 선택해 주세요";
             }
         }
-       
+
         private void Button6_Click(object sender, EventArgs e)
         {
             string currentFolderPath = AppDomain.CurrentDomain.BaseDirectory;
@@ -116,7 +161,7 @@ namespace PasswordAgent
                 string selectedUrl = listBox1.SelectedItem.ToString();
 
                 XmlDocument doc = new XmlDocument();
-                doc.Load("pwAgent.xml");
+                doc.Load(filePath);
 
                 XmlNodeList pwAgentlNodes = doc.SelectNodes($"//pwAgent[url='{selectedUrl}']");
 
@@ -246,7 +291,7 @@ namespace PasswordAgent
             }
             catch
             {
-                MessageBox.Show("아직 표시할 목록이 없습니다. \n관리하실 비밀번호를 등록해 주세요","알림",MessageBoxButtons.OK , MessageBoxIcon.Information);
+                MessageBox.Show("아직 표시할 목록이 없습니다. \n관리하실 께정 정보를 등록해 주세요", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
     }
