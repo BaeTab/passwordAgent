@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+
 
 namespace PasswordAgent
 {
@@ -32,7 +35,7 @@ namespace PasswordAgent
         private void Button1_Click(object sender, EventArgs e) // 데이터 저장을 위한 버튼
         {
             string id = textBox1.Text;
-            string pw = textBox2.Text;
+            string pw = EncryptionHelper.EncryptString(textBox2.Text);
             string url = textBox3.Text;
 
             try
@@ -170,7 +173,7 @@ namespace PasswordAgent
                     XmlNode selectedNode = pwAgentlNodes[0];
 
                     string id = selectedNode.SelectSingleNode("id").InnerText;
-                    string password = selectedNode.SelectSingleNode("password").InnerText;
+                    string password = EncryptionHelper.DecryptString(selectedNode.SelectSingleNode("password").InnerText);
                     string url = selectedNode.SelectSingleNode("url").InnerText;
 
                     textBox4.Text = url;
@@ -292,6 +295,72 @@ namespace PasswordAgent
             catch
             {
                 MessageBox.Show("아직 표시할 목록이 없습니다. \n관리하실 께정 정보를 등록해 주세요", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        public class EncryptionHelper
+        {
+            private static readonly byte[] Key = Encoding.UTF8.GetBytes("0123456789ABCDEF"); // 16바이트 (AES-128)
+            private static readonly byte[] IV = new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10 };
+
+            public static string EncryptString(string plainText)
+            {
+                if (string.IsNullOrEmpty(plainText))
+                    throw new ArgumentException("입력된 문자열이 null 또는 비어 있습니다.");
+
+                using (Aes aesAlg = Aes.Create())
+                {
+                    aesAlg.Key = Key;
+                    aesAlg.IV = IV;
+
+                    // AES 알고리즘을 사용하여 암호화 객체를 생성합니다.
+                    ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+                    // 스트림을 생성하여 암호화 데이터를 쓰고 읽습니다.
+                    using (MemoryStream msEncrypt = new MemoryStream())
+                    {
+                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                        {
+                            using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                            {
+                                // 암호화된 데이터를 쓰기합니다.
+                                swEncrypt.Write(plainText);
+                            }
+                        }
+
+                        // 암호화된 데이터를 바이트 배열로 변환합니다.
+                        byte[] encryptedBytes = msEncrypt.ToArray();
+                        // 바이트 배열을 Base64 문자열로 변환하여 반환합니다.
+                        return Convert.ToBase64String(encryptedBytes);
+                    }
+                }
+            }
+
+            public static string DecryptString(string encryptedText)
+            {
+                byte[] cipherTextBytes = Convert.FromBase64String(encryptedText);
+
+                using (Aes aesAlg = Aes.Create())
+                {
+                    aesAlg.Key = Key;
+                    aesAlg.IV = IV;
+
+                    // AES 알고리즘을 사용하여 복호화 객체를 생성합니다.
+                    ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+                    // 스트림을 생성하여 복호화 데이터를 쓰고 읽습니다.
+                    using (MemoryStream msDecrypt = new MemoryStream(cipherTextBytes))
+                    {
+                        using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                        {
+                            using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                            {
+                                // 복호화된 데이터를 읽어옵니다.
+                                return srDecrypt.ReadToEnd();
+                            }
+                        }
+                    }
+                }
             }
         }
     }
