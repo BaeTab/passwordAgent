@@ -294,7 +294,7 @@ namespace PasswordAgent
             }
             catch
             {
-                MessageBox.Show("아직 표시할 목록이 없습니다. \n관리하실 께정 정보를 등록해 주세요", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("아직 표시할 목록이 없습니다. \n관리하실 계정 정보를 등록해 주세요", "알림", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 

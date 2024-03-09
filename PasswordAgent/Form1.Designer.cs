@@ -262,14 +262,14 @@
             this.listBox1.ItemHeight = 12;
             this.listBox1.Location = new System.Drawing.Point(323, 20);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(171, 316);
+            this.listBox1.Size = new System.Drawing.Size(171, 292);
             this.listBox1.TabIndex = 8;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(500, 17);
+            this.button2.Location = new System.Drawing.Point(323, 318);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(94, 23);
+            this.button2.Size = new System.Drawing.Size(171, 23);
             this.button2.TabIndex = 9;
             this.button2.Text = "목록에서 삭제";
             this.button2.UseVisualStyleBackColor = true;
@@ -279,7 +279,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(602, 343);
+            this.ClientSize = new System.Drawing.Size(503, 343);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.groupBox2);
